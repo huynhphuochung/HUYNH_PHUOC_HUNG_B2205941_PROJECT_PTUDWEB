@@ -1,0 +1,65 @@
+const MongoDB = require("../utils/mongodb.util.js");
+const ApiError = require("../api-error");
+const { ObjectId } = require("mongodb");
+class BookService {
+  constructor(client) {
+    this.Book = client.db().collection("SACH");
+  }
+  extractBookData(payload) {
+    const SACH = {
+      MASACH: payload.MASACH,
+      TENSACH: payload.TENSACH,
+      DONGIA: payload.DONGIA,
+      SOQUYEN: payload.SOQUYEN,
+      NAMXUATBAN: payload.NAMXUATBAN,
+      MANXB: payload.MANXB,
+    };
+
+    // Xóa các key có giá trị undefined
+    Object.keys(SACH).forEach((key) => {
+      if (SACH[key] === undefined) {
+        delete SACH[key];
+      }
+    });
+
+    return SACH;
+  }
+
+  async create(payload) {
+    const SACH = this.extractBookData(payload);
+    const result = await this.Book.findOneAndUpdate(
+      SACH,
+      { $set: { favorite: SACH.favorite || false } },
+      { returnDocument: "after", upsert: true }
+    );
+    return result.value;
+  }
+  async find(filter) {
+    const cursor = await this.Book.find(filter);
+    return await cursor.toArray();
+  }
+  async findByName(TENSACH) {
+    return await this.find({
+      TENSACH: { $regex: new RegExp(TENSACH), $options: "i" },
+    });
+  }
+  async findByCode(MASACH) {
+    return await this.Book.find({
+      MASACH: { $regex: new RegExp(MASACH), $options: "i" },
+    }).toArray();
+  }
+  async updateByCode(MASACH, document) {
+    const result = await this.Book.findOneAndUpdate(
+      { MASACH: MASACH.trim() }, // trim để tránh khoảng trắng
+      { $set: document },
+      { returnDocument: "after" } // trả về document sau khi update
+    );
+    console.log("Result from findOneAndUpdate:", result);
+    return result; // trả về chính xác document
+  }
+  async deleteByCode(MASACH) {
+    const result = await this.Book.findOneAndDelete({ MASACH: MASACH.trim() });
+    return result; // trả về document đã xóa hoặc null nếu không tìm thấy
+  }
+}
+module.exports = BookService;
