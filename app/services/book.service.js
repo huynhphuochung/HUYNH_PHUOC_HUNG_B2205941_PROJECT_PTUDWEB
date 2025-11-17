@@ -1,10 +1,13 @@
 const MongoDB = require("../utils/mongodb.util.js");
 const ApiError = require("../api-error");
 const { ObjectId } = require("mongodb");
+
 class BookService {
   constructor(client) {
+    if (!client) throw new Error("MongoDB client is not defined!");
     this.Book = client.db().collection("SACH");
   }
+
   extractBookData(payload) {
     const SACH = {
       MASACH: payload.MASACH,
@@ -15,7 +18,6 @@ class BookService {
       MANXB: payload.MANXB,
     };
 
-    // Xóa các key có giá trị undefined
     Object.keys(SACH).forEach((key) => {
       if (SACH[key] === undefined) {
         delete SACH[key];
@@ -34,32 +36,47 @@ class BookService {
     );
     return result.value;
   }
+
   async find(filter) {
     const cursor = await this.Book.find(filter);
     return await cursor.toArray();
   }
+
   async findByName(TENSACH) {
     return await this.find({
       TENSACH: { $regex: new RegExp(TENSACH), $options: "i" },
     });
   }
+
   async findByCode(MASACH) {
     return await this.Book.find({
       MASACH: { $regex: new RegExp(MASACH), $options: "i" },
     }).toArray();
   }
+
   async updateByCode(MASACH, document) {
+    console.log("===== BookService.updateByCode =====");
+    console.log("MASACH:", MASACH);
+    console.log("Document to update (before removing _id):", document);
+
+    // Tạo bản sao của document để xóa _id
+    const docToUpdate = { ...document };
+    delete docToUpdate._id; // loại bỏ _id
+
     const result = await this.Book.findOneAndUpdate(
-      { MASACH: MASACH.trim() }, // trim để tránh khoảng trắng
-      { $set: document },
-      { returnDocument: "after" } // trả về document sau khi update
+      { MASACH: MASACH.trim() },
+      { $set: docToUpdate },
+      { returnDocument: "after" }
     );
-    console.log("Result from findOneAndUpdate:", result);
-    return result; // trả về chính xác document
+
+    console.log("Mongo result:", result);
+    return result.value; // trả về document sau khi update hoặc null
   }
+
   async deleteByCode(MASACH) {
     const result = await this.Book.findOneAndDelete({ MASACH: MASACH.trim() });
-    return result; // trả về document đã xóa hoặc null nếu không tìm thấy
+    return result.value;
   }
 }
+
 module.exports = BookService;

@@ -1,16 +1,25 @@
 <script>
+import AppHeader from "@/components/AppHeader.vue";
+
 export default {
- 
+  components: {
+    AppHeader,
+  },
 };
 </script>
+
 <template>
   <div id="app">
-    <h1>Welcome to the Book Application</h1>
+    <AppHeader />
+    <div class="container mt-3">
+      <router-view />
+    </div>
   </div>
 </template>
+
 <style>
-.page{
-  max-width:400px;
+.page {
+  max-width: 400px;
   margin: auto;
 }
 </style>

@@ -14,7 +14,7 @@ exports.create = async (req, res, next) => {
     return next(new ApiError(500, "An error occurred while creating the book"));
   }
 };
-exports.findAll = async (req, res) => {
+exports.findAll = async (req, res, next) => {
   let documents = [];
   try {
     const bookService = new BookService(MongoDB.client);
@@ -24,12 +24,12 @@ exports.findAll = async (req, res) => {
     } else {
       documents = await bookService.find({});
     }
+    res.send(documents);
   } catch (error) {
-    console.error(error);
-    return next(new ApiError(500, "An error occurred while retrieving books"));
+    next(new ApiError(500, "An error occurred while retrieving books"));
   }
-  return res.send(documents);
 };
+
 exports.findByName = async (req, res, next) => {
   try {
     const TENSACH = req.params.TENSACH;
@@ -41,6 +41,8 @@ exports.findByName = async (req, res, next) => {
   }
 };
 exports.findByCode = async (req, res, next) => {
+  console.log("MASACH param:", req.params.MASACH);
+  console.log("Body:", req.body);
   try {
     const code = req.params.MASACH;
     const bookService = new BookService(MongoDB.client);
@@ -51,25 +53,38 @@ exports.findByCode = async (req, res, next) => {
   }
 };
 exports.updateByCode = async (req, res, next) => {
-  if (!req.body) {
-    return next(new ApiError(400, "Data to update can not be empty"));
-  }
-
   try {
-    const MASACH = req.params.MASACH;
     const bookService = new BookService(MongoDB.client);
-    const updatedBook = await bookService.updateByCode(MASACH, req.body);
-      console.log(updatedBook);
-    if (!updatedBook) {
-      return next(new ApiError(404, `Book with MASACH=${MASACH} not found`));
+
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return next(new ApiError(400, "Data to update can not be empty"));
     }
 
+    // Loại bỏ _id nếu có để tránh lỗi MongoDB
+    const updateData = { ...req.body };
+    delete updateData._id;
+
+    const updatedBook = await bookService.updateByCode(
+      req.params.MASACH,
+      updateData
+    );
+
+    if (!updatedBook) {
+      return next(
+        new ApiError(404, `Book with MASACH=${req.params.MASACH} not found`)
+      );
+    }
+
+    // Trả về document vừa update
     res.send(updatedBook);
   } catch (error) {
-    console.error(error);
-    next(new ApiError(500, `Error updating book with MASACH=${MASACH}`));
+    console.error("Error updating book:", error);
+    next(
+      new ApiError(500, `Error updating book with MASACH=${req.params.MASACH}`)
+    );
   }
 };
+
 exports.deleteByCode = async (req, res, next) => {
   try {
     const MASACH = req.params.MASACH;
@@ -88,4 +103,3 @@ exports.deleteByCode = async (req, res, next) => {
     );
   }
 };
-

@@ -16,5 +16,7 @@ router.put("/code/:MASACH", books.updateByCode);
 
 // Xóa sách theo MASACH
 router.delete("/code/:MASACH", books.deleteByCode);
+// Lấy tất cả sách
+router.get("/", books.findAll);
 
 module.exports = router;
