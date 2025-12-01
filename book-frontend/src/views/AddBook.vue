@@ -61,32 +61,47 @@ export default {
             },
         };
     },
-    mounted() {
-        // Lấy sách theo MASACH từ router params
-        const code = this.$route.params.MASACH;
-        BookService.getByCode(code)
-            .then((data) => {
-                this.book = data; // gán dữ liệu hiện có vào form
-            })
-            .catch((err) => console.error("Lỗi lấy sách:", err));
-    },
     methods: {
-        async updateBook() {
+        async submitForm() {
             try {
                 console.log("Payload gửi lên backend:", this.book);
-                const res = await BookService.updateByCode(this.book.MASACH, this.book);
+                const res = await BookService.create(this.book);
                 console.log("Response backend:", res);
-                alert("Cập nhật sách thành công!");
-                this.$router.push({ name: "book.list" });
+                alert("Thêm sách thành công!");
+                this.$router.push({ name: "book.list" }); // điều hướng về danh sách sách
             } catch (err) {
-                console.error("Lỗi khi cập nhật sách:", err);
-                if (err.response) {
-                    console.error("Response data:", err.response.data);
-                }
-                alert("Cập nhật sách thất bại!");
+                console.error("Lỗi khi thêm sách:", err);
+                if (err.response) console.error("Response data:", err.response.data);
+                alert("Thêm sách thất bại!");
             }
         },
     },
+    // mounted() {
+    //     // Lấy sách theo MASACH từ router params
+    //     const code = this.$route.params.MASACH;
+    //     BookService.getByCode(code)
+    //         .then((data) => {
+    //             this.book = data; // gán dữ liệu hiện có vào form
+    //         })
+    //         .catch((err) => console.error("Lỗi lấy sách:", err));
+    // },
+    // methods: {
+    //     async updateBook() {
+    //         try {
+    //             console.log("Payload gửi lên backend:", this.book);
+    //             const res = await BookService.updateByCode(this.book.MASACH, this.book);
+    //             console.log("Response backend:", res);
+    //             alert("Cập nhật sách thành công!");
+    //             this.$router.push({ name: "book.list" });
+    //         } catch (err) {
+    //             console.error("Lỗi khi cập nhật sách:", err);
+    //             if (err.response) {
+    //                 console.error("Response data:", err.response.data);
+    //             }
+    //             alert("Cập nhật sách thất bại!");
+    //         }
+    //     },
+    // },
 };
 
 </script>

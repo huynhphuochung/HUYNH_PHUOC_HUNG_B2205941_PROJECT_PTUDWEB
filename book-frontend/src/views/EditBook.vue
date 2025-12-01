@@ -88,7 +88,7 @@ export default {
 
                 if (updated) {
                     alert("Cập nhật sách thành công!");
-                    this.$router.push({ name: "BookList" });
+                    this.$router.push({ name: "book.list" });
                 } else {
                     alert("Cập nhật sách thất bại! Vui lòng thử lại.");
                 }

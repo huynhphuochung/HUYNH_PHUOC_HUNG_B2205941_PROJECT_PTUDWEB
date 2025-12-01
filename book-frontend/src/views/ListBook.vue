@@ -144,13 +144,20 @@ export default {
         },
         async deleteBook(MASACH) {
             if (!confirm("Bạn có chắc muốn xóa sách này?")) return;
+
             try {
                 await BookService.deleteByCode(MASACH);
-                this.books = this.books.filter(b => b.MASACH !== MASACH);
+
+                // Cập nhật mảng books, loại bỏ sách vừa xóa
+                this.books = this.books.filter(book => book.MASACH !== MASACH);
+
+                alert("Xóa sách thành công!");
             } catch (error) {
                 console.error("Error deleting book:", error);
+                alert("Xóa sách thất bại!");
             }
-        },
+        }
+
     },
     mounted() {
         this.refreshList();
