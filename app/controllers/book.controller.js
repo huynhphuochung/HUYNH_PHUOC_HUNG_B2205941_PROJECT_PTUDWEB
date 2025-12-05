@@ -1,6 +1,6 @@
 const ApiError = require("../api-error");
-const BookService = require("../services/book.service.js"); // ✅ import class BookService
-const MongoDB = require("../utils/mongodb.util.js"); // ✅ import client MongoDB
+const BookService = require("../services/book.service.js"); 
+const MongoDB = require("../utils/mongodb.util.js"); 
 exports.create = async (req, res, next) => {
   if (!req.body?.MASACH) {
     return next(new ApiError(400, "MASACH can not be empty"));
@@ -10,7 +10,7 @@ exports.create = async (req, res, next) => {
     const document = await bookService.create(req.body);
     return res.send(document);
   } catch (error) {
-    console.error(error); // log lỗi thật
+    console.error(error); 
     return next(new ApiError(500, "An error occurred while creating the book"));
   }
 };
@@ -60,7 +60,6 @@ exports.updateByCode = async (req, res, next) => {
       return next(new ApiError(400, "Data to update can not be empty"));
     }
 
-    // Loại bỏ _id nếu có để tránh lỗi MongoDB
     const updateData = { ...req.body };
     delete updateData._id;
 
@@ -75,7 +74,7 @@ exports.updateByCode = async (req, res, next) => {
       );
     }
 
-    // Trả về document vừa update
+   
     res.send(updatedBook);
   } catch (error) {
     console.error("Error updating book:", error);

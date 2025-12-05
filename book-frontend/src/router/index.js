@@ -3,15 +3,54 @@ import ListBook from "@/views/ListBook.vue";
 import AddBook from "@/views/AddBook.vue";
 import EditBook from "@/views/EditBook.vue";
 import login from "@/views/Login.vue";
-
+import DocgiaListBook from "@/views/DocgiaListBook.vue";
+import DocGiaHistory from "@/views/Docgiahistory.vue";
+import Docgiaregister from "@/views/Docgiaregister.vue";
+import Logindocgia from "@/views/Logindocgia.vue";
 const routes = [
-  { path: "/", redirect: "/login" }, // 👈 mở web vào login trước
+  { path: "/", redirect: "/login" },
 
-  { path: "/login", name: "login", component: login }, // 👈 route login có thật
+  { path: "/login", name: "login", component: login },
 
-  { path: "/books", name: "book.list", component: ListBook },
-  { path: "/add-book", name: "book.add", component: AddBook },
-  { path: "/edit/:MASACH", name: "book.edit", component: EditBook },
+  // Quản lý
+  {
+    path: "/books",
+    name: "book.list",
+    component: ListBook,
+    meta: { role: "admin" },
+  },
+  {
+    path: "/add-book",
+    name: "book.add",
+    component: AddBook,
+    meta: { role: "admin" },
+  },
+  {
+    path: "/edit/:MASACH",
+    name: "book.edit",
+    component: EditBook,
+    meta: { role: "admin" },
+  },
+
+  // Đoc giả
+  {
+    path: "/docgia/books",
+    name: "docgia.books",
+    component: DocgiaListBook,
+    meta: { role: "docgia" },
+  },
+  {
+    path: "/docgia/history",
+    name: "docgia.history",
+    component: DocGiaHistory,
+    meta: { role: "docgia" },
+  },
+  {
+    path: "/docgia/register",
+    name: "docgia.register",
+    component: Docgiaregister,
+  },
+  { path: "/docgia/login", name: "login.docgia", component: Logindocgia },
 ];
 
 const router = createRouter({
@@ -21,13 +60,20 @@ const router = createRouter({
 
 // 🔒 Chặn truy cập nếu chưa login
 router.beforeEach((to, from, next) => {
-  const isLoggedIn = localStorage.getItem("loggedIn");
+  const admin = localStorage.getItem("loggedIn");
+  const docgia = localStorage.getItem("docgia");
 
-  if (!isLoggedIn && to.name !== "login") {
-    next({ name: "login" });
-  } else {
-    next();
+  // 1️⃣ Nếu vào trang admin mà chưa login admin → chuyển về login admin
+  if (to.meta.role === "admin" && !admin) {
+    return next({ name: "login" });
   }
+
+  // 2️⃣ Nếu vào trang độc giả mà chưa login độc giả → chuyển về login độc giả
+  if (to.meta.role === "docgia" && !docgia) {
+    return next({ name: "login.docgia" });
+  }
+
+  next();
 });
 
 export default router;

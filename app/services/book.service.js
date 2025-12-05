@@ -55,13 +55,11 @@ class BookService {
   }
 
   async updateByCode(MASACH, document) {
-    console.log("===== BookService.updateByCode =====");
     console.log("MASACH:", MASACH);
     console.log("Document to update (before removing _id):", document);
 
-    // Tạo bản sao của document để xóa _id
     const docToUpdate = { ...document };
-    delete docToUpdate._id; // loại bỏ _id
+    delete docToUpdate._id; 
 
     const result = await this.Book.findOneAndUpdate(
       { MASACH: MASACH.trim() },
@@ -70,12 +68,12 @@ class BookService {
     );
 
     console.log("Mongo result:", result);
-    return result.value; // trả về document sau khi update hoặc null
+    return result; 
   }
 
   async deleteByCode(MASACH) {
     const result = await this.Book.findOneAndDelete({ MASACH: MASACH.trim() });
-    return result.value;
+    return result;
   }
 }
 
