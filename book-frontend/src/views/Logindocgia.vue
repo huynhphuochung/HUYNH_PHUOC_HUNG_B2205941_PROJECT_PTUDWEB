@@ -16,6 +16,10 @@
             <button type="submit" class="btn btn-primary">Đăng nhập</button>
 
             <p v-if="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p>
+            <p class="mt-3 text-center">
+                Chưa có tài khoản?
+                <router-link :to="{ name: 'docgia.register' }">Đăng ký ngay</router-link>
+            </p>
         </form>
     </div>
 </template>
@@ -41,9 +45,14 @@ export default {
                     password: password.value,
                 });
 
-                // Lưu thông tin đọc giả vào localStorage
+
+                localStorage.setItem("docgiaLoggedIn", "true");
+                localStorage.setItem("docgiaInfo", JSON.stringify(res.data.data));
                 localStorage.setItem("docgia", JSON.stringify(res.data.data));
-                localStorage.setItem("loggedIn", true);
+                localStorage.setItem("loggedIn", "true");
+
+                localStorage.setItem("role", "docgia");
+                alert("Đăng nhập thành công!");
                 // Chuyển hướng sang trang danh sách sách đọc giả
                 router.push({ name: "docgia.books" });
             } catch (err) {

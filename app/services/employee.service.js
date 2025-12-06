@@ -27,8 +27,16 @@ class EmployeeService {
   async findByMSNV(MSNV) {
     return await this.collection.findOne({ MSNV });
   }
+  async login(MSNV, Password) {
+    const employee = await this.findByMSNV(MSNV);
+    if (!employee) return null;
+
+    const isMatch = await bcrypt.compare(Password, employee.Password);
+    if (!isMatch) return null;
+
+    const { Password: _, ...employeeData } = employee; // loại bỏ mật khẩu
+    return employeeData;
+  }
 }
 
 module.exports = EmployeeService;
-
-

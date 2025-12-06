@@ -46,11 +46,11 @@ export default {
                 alert("Đăng nhập thành công!");
 
                 // Lưu thông tin nhân viên
-                localStorage.setItem("employee", JSON.stringify(res.data.employee));
-                localStorage.setItem("loggedIn", "true");
-
-                // Điều hướng sang trang chính
+                localStorage.setItem("employeeLoggedIn", "true");
+                localStorage.setItem("employeeInfo", JSON.stringify(res.data.employee));
+                localStorage.setItem("role", "admin");
                 this.$router.push({ name: "book.list" });
+
 
 
             } catch (err) {

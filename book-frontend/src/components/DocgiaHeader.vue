@@ -1,5 +1,5 @@
 <template>
-    <nav class="navbar navbar-expand navbar-dark bg-dark px-3">
+    <nav class="navbar navbar-expand navbar-dark bg-info px-3">
         <a href="/" class="navbar-brand">Ứng dụng Độc giả</a>
 
         <div class="mr-auto navbar-nav d-flex">
@@ -16,7 +16,7 @@
         </div>
 
         <!-- Góc phải -->
-        <div class="d-flex align-items-center text-white gap-3">
+        <div class="d-flex align-items-center text-white gap-3" style="gap: 20px;">
             <template v-if="user">
                 <span class="me-3">{{ user.HOLOT }} {{ user.TEN }}</span>
 

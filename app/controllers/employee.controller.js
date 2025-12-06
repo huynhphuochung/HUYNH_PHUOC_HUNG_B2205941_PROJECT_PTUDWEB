@@ -1,6 +1,7 @@
 const ApiError = require("../api-error");
 const EmployeeService = require("../services/employee.service.js"); // import class EmployeeService
 const MongoDB = require("../utils/mongodb.util.js");
+
 exports.create = async (req, res, next) => {
   if (
     !req.body?.MSNV ||
@@ -10,7 +11,6 @@ exports.create = async (req, res, next) => {
     !req.body?.DiaChi ||
     !req.body?.SoDienThoai
   ) {
-
     return next(new ApiError(400, "MANV can not be empty"));
   }
 
@@ -26,34 +26,36 @@ exports.create = async (req, res, next) => {
   }
 };
 const bcrypt = require("bcrypt");
+// const Employees = require("../models/employee.model.js"); // chắc chắn import model
 
-exports.login = async (req, res, next) => {
+exports.login = async (req, res) => {
   try {
-    const { MSNV, Password } = req.body;
+    console.log("Body nhận được:", req.body);
 
+    const { MSNV, Password } = req.body;
     if (!MSNV || !Password) {
-      return next(new ApiError(400, "MSNV và Password không được để trống"));
+      console.log("MSNV hoặc Password trống!");
+      return res
+        .status(400)
+        .json({ message: "MSNV và mật khẩu không được để trống" });
     }
 
     const employeeService = new EmployeeService(MongoDB.getClient());
-    const employee = await employeeService.findByMSNV(MSNV);
+    const employeeData = await employeeService.login(MSNV, Password); // 🔹 gọi service login
 
-    if (!employee) {
-      return next(new ApiError(404, "Nhân viên không tồn tại"));
+    console.log("Kết quả login:", employeeData);
+
+    if (!employeeData) {
+      console.log("MSNV hoặc mật khẩu không đúng");
+      return res.status(401).json({ message: "MSNV hoặc mật khẩu không đúng" });
     }
 
-
-    const isMatch = await bcrypt.compare(Password, employee.Password);
-
-    if (!isMatch) {
-      return next(new ApiError(401, "Sai mật khẩu"));
-    }
-
-    return res.send({
+    res.status(200).json({
       message: "Đăng nhập thành công!",
-      employee,
+      employee: employeeData,
     });
   } catch (error) {
-    return next(new ApiError(500, "Lỗi server khi đăng nhập"));
+    console.error("Lỗi khi login:", error);
+    res.status(500).json({ message: "Lỗi server", error });
   }
 };

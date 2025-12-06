@@ -7,6 +7,9 @@ import DocgiaListBook from "@/views/DocgiaListBook.vue";
 import DocGiaHistory from "@/views/Docgiahistory.vue";
 import Docgiaregister from "@/views/Docgiaregister.vue";
 import Logindocgia from "@/views/Logindocgia.vue";
+import Dangkymuon from "@/views/Dangkymuon.vue";
+import ApproveBorrow from "@/views/ApproveBorrow.vue";
+
 const routes = [
   { path: "/", redirect: "/login" },
 
@@ -51,6 +54,18 @@ const routes = [
     component: Docgiaregister,
   },
   { path: "/docgia/login", name: "login.docgia", component: Logindocgia },
+  {
+    path: "/docgia/muon", // URL khi điều hướng
+    name: "dangky.muon", // tên route bạn sẽ dùng trong this.$router.push
+    component: Dangkymuon,
+    meta: { role: "docgia" }, // nếu muốn chặn nếu chưa login
+  },
+  {
+    path: "/approve-borrow",
+    name: "approve.borrow",
+    component: ApproveBorrow,
+    meta: { role: "admin" }, // chỉ admin mới vào được
+  },
 ];
 
 const router = createRouter({
@@ -60,17 +75,16 @@ const router = createRouter({
 
 // 🔒 Chặn truy cập nếu chưa login
 router.beforeEach((to, from, next) => {
-  const admin = localStorage.getItem("loggedIn");
-  const docgia = localStorage.getItem("docgia");
-
-  // 1️⃣ Nếu vào trang admin mà chưa login admin → chuyển về login admin
-  if (to.meta.role === "admin" && !admin) {
-    return next({ name: "login" });
+  // Nếu route yêu cầu quyền admin
+  if (to.meta.role === "admin") {
+    const isAdmin = localStorage.getItem("employeeLoggedIn");
+    if (!isAdmin) return next({ name: "login" });
   }
 
-  // 2️⃣ Nếu vào trang độc giả mà chưa login độc giả → chuyển về login độc giả
-  if (to.meta.role === "docgia" && !docgia) {
-    return next({ name: "login.docgia" });
+  // Nếu route yêu cầu quyền docgia
+  if (to.meta.role === "docgia") {
+    const isDocgia = localStorage.getItem("docgiaLoggedIn");
+    if (!isDocgia) return next({ name: "login.docgia" });
   }
 
   next();
